@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<!-- 
+    @author David Megginson, david@megginson.com
+    @author shane_curcuru@lotus.com
+    @author Davanum Srinivas, dims@yaoo.com
+-->
+<project name="xml-commons-external" default="jar" >
+
+  <!-- Name and version information -->
+  <property name="name.external" value="xml-commons-external"/>
+  <property name="impl.name" value="XmlCommonsExternal"/>
+  <!-- If no external version is provided, don't use one -->
+  <property name="version" value="1.3.04"/>
+  <property name="impl.version" value="${version}"/>
+
+  <!-- Location of the system's temporary directory; all output sent here -->
+  <property name="tmp.dir" value="." />
+
+  <!-- Properties to control compilation -->
+  <property name="debug" value="off"/>
+
+  <!-- Build directories -->
+  <property name="build.dir" value="${tmp.dir}/build" />
+  <property name="build.classes.dir" value="${build.dir}/classes" />
+  <property name="build.docs.dir" value="${build.dir}/docs" />
+  <property name="build.javadocs.dir" value="${build.docs.dir}/javadoc" />
+  <property name="external.javadoc.title" value="JAXP 1.3, DOM3, SAX2.0.2(sax2r3), SAC 1.3" />
+	
+  <property name="dist.basename" value="${name.external}-${impl.version}" />
+
+  <!-- Source constants and directories -->
+  <property name="src.dir" value="src" />
+  <property name="docs.dir" value="xdocs" />
+  <property name="api.jar.location" value="${build.dir}" />
+  <property name="api.jar.name" value="xml-apis.jar" />
+  <property name="api-ext.jar.name" value="xml-apis-ext.jar" />
+  <property name="api.jar" value="${api.jar.location}/${api.jar.name}" />
+  <property name="api-ext.jar" value="${api.jar.location}/${api-ext.jar.name}" />
+
+  <!-- License and readme files of various types -->
+  <property name="licenses.external.dir" value="."/>
+  <patternset id="licenses.external">
+    <include name="LICENSE.dom-documentation.txt" />
+    <include name="LICENSE.dom-software.txt" />
+    <include name="LICENSE.sac.html" />
+    <include name="README.dom.txt" />
+    <include name="LICENSE.sax.txt" />
+    <include name="README.sax.txt" />
+  </patternset>
+  <patternset id="licenses.external.xml.apis">
+    <include name="LICENSE.dom-documentation.txt" />
+    <include name="LICENSE.dom-software.txt" />
+    <include name="README.dom.txt" />
+    <include name="LICENSE.sax.txt" />
+    <include name="README.sax.txt" />
+  </patternset>
+  <property name="licenses.asf.dir" value="."/>
+  <patternset id="licenses.asf" >
+    <include name="LICENSE" />  
+    <include name="NOTICE" />  
+  </patternset>
+  <property name="keys.external.dir" value="."/>
+  <patternset id="keys.external">
+    <include name="KEYS" />
+  </patternset>  
+
+  <target name="all" depends="jar,javadoc,exportsrc.all,bin.distro"
+    description="Jar external classes, create javadoc, create sources.tar.gz, create binary.tar.gz">
+  </target>
+
+  <target name="prepare" 
+    description="Create build output directories">
+    <echo message="Building ${name.external} (version: ${impl.version}) Buildfile: $Revision$"/>
+    <mkdir dir="${build.classes.dir}" />
+    <mkdir dir="${build.docs.dir}" />
+    <mkdir dir="${build.javadocs.dir}" />
+    <filter token="java.version" value="${java.version}"/>
+    <filter token="java.vendor" value="${java.vendor}"/>    
+    <filter token="impl.version" value="${impl.version}"/>
+    <filter token="impl.name" value="${impl.name}"/>
+    <copy file="${src.dir}/org/apache/xmlcommons/Version.src" 
+        tofile="${src.dir}/org/apache/xmlcommons/Version.java" 
+        filtering="true" preservelastmodified="true" />
+    <copy todir="${build.dir}" file="${src.dir}/manifest.commons" filtering="true"/>
+  </target>
+
+  <target name="compile" depends="prepare"
+    description="Compile all classes">
+   <javac srcdir="${src.dir}" destdir="${build.classes.dir}"
+          debug="${debug}" />
+  </target>
+
+  <target name="jar" depends="compile"
+    description="Jar all classes">
+    <echo message="Jarring ${api.jar} from ${build.classes.dir}" />
+
+    <!-- Copy various licenses so they appear in the .jar file -->
+    <property name="jar-licenses" value="${build.classes.dir}/license" />
+    <mkdir dir="${jar-licenses}" />
+    <copy todir="${jar-licenses}">
+      <fileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external"/>
+      </fileset>
+      <fileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </fileset>
+    </copy>
+
+    <jar jarfile="${api.jar}" 
+        manifest="${build.dir}/manifest.commons">
+      <fileset dir="${build.classes.dir}">
+        <exclude name="**/sac/**"/>
+        <exclude name="**/smil/**"/>
+        <exclude name="**/svg/**"/>
+      	<exclude name="license/LICENSE.sac.html"/>
+      </fileset>
+    </jar>
+
+    <echo message="Jarring ${api-ext.jar} from ${build.classes.dir}" />
+    <jar jarfile="${api-ext.jar}">
+      <manifest>
+        <section name="org/w3c/css/sac/">
+          <attribute name="Specification-Title" value="Simple API for CSS"/>
+          <attribute name="Specification-Version" value="1.3"/>
+          <attribute name="Specification-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Specification-URL" value="http://www.w3.org/Style/CSS/SAC/"/>
+          <attribute name="Implementation-Title" value="org.w3c.css.sac"/>
+          <attribute name="Implementation-Version" value="1.3"/>
+          <attribute name="Implementation-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Implementation-URL" value="http://www.w3.org/Style/CSS/SAC/"/>
+        </section>
+        <section name="org/w3c/dom/smil/">
+          <attribute name="Specification-Title" value="Document Object Model (DOM) for Synchronized Multimedia Integration Language (SMIL)"/>
+          <!--attribute name="Specification-Version" value="1.0"/-->
+          <attribute name="Specification-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Specification-URL" value="http://www.w3.org/TR/SMIL2/"/>
+          <attribute name="Implementation-Title" value="org.w3c.dom.smil"/>
+          <!--attribute name="Implementation-Version" value="1.0"/-->
+          <attribute name="Implementation-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Implementation-URL" value="http://dev.w3.org/cvsweb/java/classes/org/w3c/dom/smil/"/>
+        </section>
+        <section name="org/w3c/dom/svg/">
+          <attribute name="Specification-Title" value="Document Object Model (DOM) for Scalable Vector Graphics (SVG)"/>
+          <attribute name="Specification-Version" value="1.1"/>
+          <attribute name="Specification-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Specification-URL" value="http://www.w3.org/TR/SVG11/"/>
+          <attribute name="Implementation-Title" value="org.w3c.dom.svg"/>
+          <attribute name="Implementation-Version" value="1.1"/>
+          <attribute name="Implementation-Vendor" value="World Wide Web Consortium"/>
+          <attribute name="Implementation-URL" value="http://www.w3.org/TR/SVG11/java.html"/>
+        </section>
+      </manifest>
+      <fileset dir="${build.classes.dir}">
+        <include name="license/**"/>
+        <exclude name="license/*sax*"/>
+        <include name="**/sac/**"/>
+        <include name="**/smil/**"/>
+        <include name="**/svg/**"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="javadoc" depends="prepare"
+    description="Build javadocs and copy doc over">
+    <javadoc packagenames="org.xml.sax.*,org.w3c.*,javax.xml.*"
+      sourcepath="${src.dir}" 
+      destdir="${build.javadocs.dir}" 
+      version="yes" 
+      windowtitle="${external.javadoc.title}" 
+      doctitle="${external.javadoc.title}"
+    />
+    <!-- Legal question: what should the bottom= copyright line be
+         for this mixed set of javadocs? -->
+    <!-- Just copy existing .html files over as well -->
+    <copy todir="${build.docs.dir}">
+      <fileset dir="${docs.dir}"/>
+    </copy>
+   </target>
+
+  <target name="exportsrc.all" depends="prepare"
+    description="Create a simple distribution of sources">
+    <!-- Note: this *only* a copy of the .java sources that 
+         go into our .jar file, not all our sources! -->
+
+    <patternset id="external-srcs" >
+    <!-- Relative to external/src, which is ${src.dir}  -->
+      <include name="org/"/>
+      <include name="javax/"/>
+    </patternset>
+
+    <tar tarfile="${build.dir}/${name.external}-${impl.version}-src.tar" >
+      <tarfileset dir="${src.dir}">
+        <patternset refid="external-srcs"/>
+      </tarfileset>
+      <tarfileset dir="${build.dir}">
+        <include name="manifest.commons"/>
+      </tarfileset>
+      <tarfileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external"/>
+      </tarfileset>
+      <tarfileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </tarfileset>
+    </tar>
+
+    <!-- Xerces would like a zipped version instead for various reasons
+        principally involving CVS limitations.  -->
+    <gzip src="${build.dir}/${name.external}-${impl.version}-src.tar" zipfile="${build.dir}/${name.external}-${impl.version}-src.tar.gz"/>
+    <delete file="${build.dir}/${name.external}-${impl.version}-src.tar" />
+    <zip zipfile="${build.dir}/${name.external}-${impl.version}-src.zip" >
+      <zipfileset dir="${src.dir}">
+        <patternset refid="external-srcs"/>
+      </zipfileset>
+      <zipfileset dir="${build.dir}">
+        <include name="manifest.commons"/>
+      </zipfileset>
+      <zipfileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external"/>
+      </zipfileset>
+      <zipfileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </zipfileset>
+    </zip>
+  </target>
+  
+  <target name="exportsrc.xml.apis" depends="prepare"
+    description="Create a simple distribution of sources">
+    <!-- Note: this *only* a copy of the .java sources that 
+         go into our .jar file, not all our sources! -->
+
+    <patternset id="external-srcs" >
+    <!-- Relative to external/src, which is ${src.dir}  -->
+      <include name="org/"/>
+      <include name="javax/"/>
+      <exclude name="**/sac/**"/>
+      <exclude name="**/smil/**"/>
+      <exclude name="**/svg/**"/>
+    </patternset>
+
+    <tar tarfile="${build.dir}/${name.external}-${impl.version}-src.tar" >
+      <tarfileset dir="${src.dir}">
+        <patternset refid="external-srcs"/>
+      </tarfileset>
+      <tarfileset dir="${build.dir}">
+        <include name="manifest.commons"/>
+      </tarfileset>
+      <tarfileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external.xml.apis"/>
+      </tarfileset>
+      <tarfileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </tarfileset>
+    </tar>
+
+    <!-- Xerces would like a zipped version instead for various reasons
+        principally involving CVS limitations.  -->
+    <gzip src="${build.dir}/${name.external}-${impl.version}-src.tar" zipfile="${build.dir}/${name.external}-${impl.version}-src.tar.gz"/>
+    <delete file="${build.dir}/${name.external}-${impl.version}-src.tar" />
+    <zip zipfile="${build.dir}/${name.external}-${impl.version}-src.zip" >
+      <zipfileset dir="${src.dir}">
+        <patternset refid="external-srcs"/>
+      </zipfileset>
+      <zipfileset dir="${build.dir}">
+        <include name="manifest.commons"/>
+      </zipfileset>
+      <zipfileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external.xml.apis"/>
+      </zipfileset>
+      <zipfileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="bin.distro" depends="jar,javadoc"
+    description="Create a binary distribution for xml-common-external">
+
+    <mkdir dir="${build.dir}/${dist.basename}"/>
+    <mkdir dir="${build.dir}/${dist.basename}/docs"/>
+
+    <copy todir="${build.dir}/${dist.basename}/docs">
+      <fileset dir="${build.docs.dir}"/>
+    </copy>
+    <copy todir="${build.dir}/${dist.basename}">
+      <fileset dir="${build.dir}" includes="${api.jar.name}"/>
+      <fileset dir="${build.dir}" includes="${api-ext.jar.name}"/>
+      <fileset dir="${build.dir}" includes="manifest.commons"/>  
+    </copy>
+    <copy todir="${build.dir}/${dist.basename}">
+      <fileset dir="${licenses.external.dir}">
+        <patternset refid="licenses.external"/>
+      </fileset>
+      <fileset dir="${licenses.asf.dir}">
+        <patternset refid="licenses.asf"/>
+      </fileset>
+      <fileset dir="${keys.external.dir}">
+        <patternset refid="keys.external"/>
+      </fileset>      
+    </copy>
+
+    <tar tarfile="${build.dir}/${dist.basename}-bin.tar" >
+      <tarfileset dir="${build.dir}">
+        <include name="${dist.basename}/"/>
+      </tarfileset>
+    </tar>
+
+    <gzip src="${build.dir}/${dist.basename}-bin.tar" zipfile="${build.dir}/${dist.basename}-bin.tar.gz"/>
+    <delete file="${build.dir}/${dist.basename}-bin.tar" />
+    <zip zipfile="${build.dir}/${dist.basename}-bin.zip" >
+      <zipfileset dir="${build.dir}">
+        <include name="${dist.basename}/"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="clean" 
+      description="Clean the output build area">
+    <delete file="${api.jar}"/>
+    <delete file="${api-ext.jar}"/>
+    <delete dir="${build.dir}"/>
+    <delete file="${src.dir}/org/apache/xmlcommons/Version.java"/>
+  </target>
+
+</project>
