@@ -62,7 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_javadir}
 
 install build/xml-apis.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-%{version}.jar
-install build/xml-apis-ext.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-%{version}.jar
+install build/xml-apis-ext.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-ext-%{version}.jar
 ln -sf xml-apis-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis.jar
 ln -sf xml-apis-ext-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-ext.jar
 
