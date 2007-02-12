@@ -1,7 +1,7 @@
 # TODO: something with org.apache.env.which (currently xml-commons-which.jar in xml-commons),
 # then obsolete xml-commons here
 Summary:	Apache XML Commons External classes
-Summary(pl):	Klasy Apache XML Commons External
+Summary(pl.UTF-8):   Klasy Apache XML Commons External
 Name:		xml-commons-external
 Version:	1.3.04
 Release:	1
@@ -25,21 +25,21 @@ The Apache XML Commons External classes:
  - DOM Level 3 from w3c.org
  - SAX 2.0 from megginson.com
 
-%description -l pl
+%description -l pl.UTF-8
 Klasy Apache XML Commons External:
  - DOM Level 3 z w3c.org
  - SAX 2.0 z megginson.com
 
 %package javadoc
 Summary:	javadoc documentation for Apache XML Commons External
-Summary(pl):	Dokumentacja javadoc dla pakietu Apache XML Commons External
+Summary(pl.UTF-8):   Dokumentacja javadoc dla pakietu Apache XML Commons External
 Group:		Documentation
 Requires:	jpackage-utils
 
 %description javadoc
 javadoc documentation for Apache XML Commons External.
 
-%description javadoc -l pl
+%description javadoc -l pl.UTF-8
 Dokumentacja javadoc dla pakietu Apache XML Commons External.
 
 %prep
