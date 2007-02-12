@@ -1,7 +1,7 @@
 # TODO: something with org.apache.env.which (currently xml-commons-which.jar in xml-commons),
 # then obsolete xml-commons here
 Summary:	Apache XML Commons External classes
-Summary(pl.UTF-8):   Klasy Apache XML Commons External
+Summary(pl.UTF-8):	Klasy Apache XML Commons External
 Name:		xml-commons-external
 Version:	1.3.04
 Release:	1
@@ -32,7 +32,7 @@ Klasy Apache XML Commons External:
 
 %package javadoc
 Summary:	javadoc documentation for Apache XML Commons External
-Summary(pl.UTF-8):   Dokumentacja javadoc dla pakietu Apache XML Commons External
+Summary(pl.UTF-8):	Dokumentacja javadoc dla pakietu Apache XML Commons External
 Group:		Documentation
 Requires:	jpackage-utils
 
