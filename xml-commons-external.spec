@@ -1,10 +1,12 @@
-# TODO: something with org.apache.env.which (currently xml-commons-which.jar in xml-commons),
-# then obsolete xml-commons here
+# TODO
+# - something with org.apache.env.which (currently xml-commons-which.jar in
+#   xml-commons), then obsolete xml-commons here
+%include	/usr/lib/rpm/macros.java
 Summary:	Apache XML Commons External classes
 Summary(pl.UTF-8):	Klasy Apache XML Commons External
 Name:		xml-commons-external
 Version:	1.3.04
-Release:	1
+Release:	2
 License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/xml/commons/%{name}-%{version}-src.tar.gz
@@ -15,9 +17,10 @@ URL:		http://xml.apache.org/commons/
 BuildRequires:	ant
 BuildRequires:	jdk
 BuildRequires:	jpackage-utils
+BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
+Requires:	jpackage-utils
 BuildArch:	noarch
-ExclusiveArch:	i586 i686 pentium3 pentium4 athlon %{x8664} noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -44,7 +47,6 @@ Dokumentacja javadoc dla pakietu Apache XML Commons External.
 
 %prep
 %setup -q -c
-
 cp %{SOURCE1} build.xml
 
 # for build.xml
@@ -52,7 +54,6 @@ mkdir src xdocs
 ln -s ../javax ../org ../manifest.commons src
 
 %build
-export JAVA_HOME="%{java_home}"
 # default 64m is too low
 #export ANT_OPTS="-Xmx128m"
 %ant jar javadoc
@@ -63,29 +64,25 @@ install -d $RPM_BUILD_ROOT%{_javadir}
 
 install build/xml-apis.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-%{version}.jar
 install build/xml-apis-ext.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-ext-%{version}.jar
-ln -sf xml-apis-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis.jar
-ln -sf xml-apis-ext-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-ext.jar
+ln -s xml-apis-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis.jar
+ln -s xml-apis-ext-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/xml-apis-ext.jar
 
 install -d $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -pr build/docs/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+cp -a build/docs/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post javadoc
-rm -f %{_javadocdir}/%{name}
-ln -s %{name}-%{version} %{_javadocdir}/%{name}
-
-%postun javadoc
-if [ "$1" = "0" ]; then
-	rm -f %{_javadocdir}/%{name}
-fi
+ln -nfs %{name}-%{version} %{_javadocdir}/%{name}
 
 %files
 %defattr(644,root,root,755)
 %doc LICENSE* NOTICE README.*
-%{_javadir}/xml-apis*.jar
+%{_javadir}/*.jar
 
 %files javadoc
 %defattr(644,root,root,755)
 %{_javadocdir}/%{name}-%{version}
+%ghost %{_javadocdir}/%{name}
