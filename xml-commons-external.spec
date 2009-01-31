@@ -15,7 +15,7 @@ Source0:	http://www.apache.org/dist/xml/commons/%{name}-%{version}-src.tar.gz
 Source1:	%{name}-build.xml
 URL:		http://xml.apache.org/commons/
 BuildRequires:	ant
-BuildRequires:	jdk
+BuildRequires:	java-gcj-compat
 BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
